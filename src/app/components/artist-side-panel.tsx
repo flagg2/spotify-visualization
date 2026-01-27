@@ -93,22 +93,13 @@ export function ArtistSidePanel({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: [
-      "spotifyArtist",
-      artistData?.name,
-      artistData?.country,
-      selectedCountry,
-    ],
+    queryKey: ["spotifyArtist", artistData?.name, selectedCountry],
     queryFn: () => {
       const top5TrackIds = artistData!.tracks
         .slice(0, 5)
         .map((t) => t.id)
         .join(",");
-      return fetchSpotifyData(
-        artistData!.name,
-        artistData!.country,
-        top5TrackIds,
-      );
+      return fetchSpotifyData(artistData!.name, selectedCountry, top5TrackIds);
     },
     enabled: !!artistData, // Only run the query if artistData is available
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes (reduced from 1 hour)
@@ -153,6 +144,8 @@ export function ArtistSidePanel({
       cover: spotifyData?.trackCovers?.[track.id] || null,
     })),
   };
+
+  console.log("Merged Artist Data:", mergedArtistData);
 
   return (
     <Card className="flex-1 overflow-y-auto">
@@ -480,26 +473,31 @@ export function ArtistSidePanel({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    {!imageLoaded && track.cover ? (
-                      <div
-                        className={`rounded bg-muted flex items-center justify-center flex-shrink-0 ${
-                          track.isTopTrack ? "w-16 h-16" : "w-12 h-12"
-                        }`}
-                      >
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                    {track.cover ? (
+                      <div className="relative">
+                        <img
+                          src={track.cover}
+                          alt={track.title}
+                          key={imageKey}
+                          onLoad={() =>
+                            setLoadedImages((prev) => ({
+                              ...prev,
+                              [imageKey]: true,
+                            }))
+                          }
+                          className={`rounded object-cover flex-shrink-0 bg-muted ${
+                            track.isTopTrack ? "w-16 h-16" : "w-12 h-12"
+                          }`}
+                        />
+                        {!imageLoaded && (
+                          <div className="absolute inset-0 rounded bg-muted flex items-center justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <img
-                        src={track.cover || "/placeholder.svg"}
-                        alt={track.title}
-                        key={imageKey}
-                        onLoad={() =>
-                          setLoadedImages((prev) => ({
-                            ...prev,
-                            [imageKey]: true,
-                          }))
-                        }
-                        className={`rounded object-cover flex-shrink-0 bg-muted ${
+                      <div
+                        className={`rounded bg-muted flex-shrink-0 ${
                           track.isTopTrack ? "w-16 h-16" : "w-12 h-12"
                         }`}
                       />
