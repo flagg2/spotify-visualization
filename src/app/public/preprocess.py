@@ -99,33 +99,43 @@ def process_data(input_path, output_path):
 
             # Top 50 History
             artist_tracks['month'] = artist_tracks['snapshot_date'].dt.to_period('M')
-            top50_history_grouped = artist_tracks[artist_tracks['rank'] <= 50].groupby('month')
             
+            # Get the full date range from the entire dataset
+            all_months = df['snapshot_date'].dt.to_period('M').unique()
+            all_months = sorted(all_months)
+            
+            # Get months where this artist had top 50 songs
+            top50_history_grouped = artist_tracks[artist_tracks['rank'] <= 50].groupby('month')
+            top50_months_data = {}
+            
+            for month, group in top50_history_grouped:
+                top50_months_data[month] = {
+                    'top50Count': len(group['id'].unique()),
+                    'bestRankInMonth': int(group['rank'].min())
+                }
+            
+            # Create history for all months, filling in 0s where needed
             top50_history = []
-            if not top50_history_grouped.groups:
-                # Add at least one entry if no top 50 history to prevent errors
-                latest_date = artist_tracks['snapshot_date'].max()
-                if pd.notna(latest_date):
-                    top50_history.append({
-                        'date': latest_date.strftime('%Y-%m'),
-                        'displayDate': latest_date.strftime('%b %Y'),
-                        'top50Count': 0,
-                        'bestRankInMonth': None,
-                        'isYearStart': latest_date.month == 1,
-                        'isQuarter': latest_date.month in [1, 4, 7, 10]
-                    })
-            else:
-                for month, group in top50_history_grouped:
-                    first_day = month.to_timestamp()
+            for month in all_months:
+                first_day = month.to_timestamp()
+                if month in top50_months_data:
                     top50_history.append({
                         'date': month.strftime('%Y-%m'),
                         'displayDate': first_day.strftime('%b %Y'),
-                        'top50Count': len(group['id'].unique()),
-                        'bestRankInMonth': int(group['rank'].min()),
+                        'top50Count': top50_months_data[month]['top50Count'],
+                        'bestRankInMonth': top50_months_data[month]['bestRankInMonth'],
                         'isYearStart': month.month == 1,
                         'isQuarter': month.month in [1, 4, 7, 10]
                     })
-            top50_history.sort(key=lambda x: x['date'])
+                else:
+                    top50_history.append({
+                        'date': month.strftime('%Y-%m'),
+                        'displayDate': first_day.strftime('%b %Y'),
+                        'top50Count': 0,
+                        'bestRankInMonth': None,
+                        'isYearStart': month.month == 1,
+                        'isQuarter': month.month in [1, 4, 7, 10]
+                    })
 
 
             # Aggregate stats for ALL tracks to get general info

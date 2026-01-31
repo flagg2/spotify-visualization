@@ -48,6 +48,7 @@ interface ArtistData {
   rankSK?: number | null;
   rankCZ?: number | null;
   avgTop50Count?: number;
+  maxSongsAcrossBothCountries?: number;
   country: string;
   stats: {
     tracksInDataset: number;
@@ -128,11 +129,15 @@ export function ArtistSidePanel({
   }
 
   // Calculate the max value for the left Y-axis of the history chart
-  const maxSongsInTop50 = Math.max(
-    ...artistData.top50History.map((h) => h.top50Count),
-    0,
-  );
+  // Use the max across both countries to keep scale consistent
+  const maxSongsInTop50 = artistData.maxSongsAcrossBothCountries || 0;
   const yAxisMax = Math.max(10, maxSongsInTop50 + 2);
+
+  // Transform top50History to show 51 for months with no ranking
+  const transformedTop50History = artistData.top50History.map((item: any) => ({
+    ...item,
+    bestRankInMonth: item.bestRankInMonth === null ? 51 : item.bestRankInMonth,
+  }));
 
   const mergedArtistData = {
     ...artistData,
@@ -348,7 +353,7 @@ export function ArtistSidePanel({
               <span className="text-muted-foreground">Monthly best rank</span>
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <ComposedChart data={mergedArtistData.top50History}>
+              <ComposedChart data={transformedTop50History}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="date"
@@ -357,11 +362,11 @@ export function ArtistSidePanel({
                     fill: "hsl(var(--muted-foreground))",
                     fontSize: 10,
                   }}
-                  ticks={mergedArtistData.top50History
+                  ticks={transformedTop50History
                     .filter((d: any) => d.isYearStart)
                     .map((d: any) => d.date)}
                   tickFormatter={(value) => {
-                    const item = mergedArtistData.top50History.find(
+                    const item = transformedTop50History.find(
                       (d: any) => d.date === value,
                     );
                     return item?.displayDate.split(" ")[1] || value;
@@ -370,9 +375,8 @@ export function ArtistSidePanel({
                 <YAxis
                   reversed
                   type="number"
-                  domain={[1, 50]}
-                  ticks={[1, 10, 20, 30, 40, 50]}
-                  tickCount={6}
+                  domain={[1, 51]}
+                  ticks={[1, 10, 20, 30, 40, 50, 51]}
                   className="text-xs"
                   tick={{
                     fill: "hsl(var(--muted-foreground))",
@@ -398,7 +402,7 @@ export function ArtistSidePanel({
                             {data.displayDate}
                           </p>
                           <p className="text-xs">
-                            Best Rank: #{data.bestRankInMonth}
+                            Best Rank: {data.bestRankInMonth === 51 ? 'Not in Top 50' : `#${data.bestRankInMonth}`}
                           </p>
                         </div>
                       );

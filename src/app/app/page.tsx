@@ -30,7 +30,7 @@ export default function Home() {
   const graphRef = useRef<any>(null);
 
   // Hardcoded physics values
-  const chargeStrength = -200;
+  const chargeStrength = -1000;
   const linkStrength = 1;
 
   useEffect(() => {
@@ -80,6 +80,26 @@ export default function Home() {
         byName[name] = {};
       }
       byName[name][country] = enrichedData;
+    });
+
+    // Calculate max songs in top 50 across both countries for each artist
+    Object.keys(byName).forEach((artistName) => {
+      const skData = byName[artistName]["SK"];
+      const czData = byName[artistName]["CZ"];
+
+      const skMax =
+        skData?.top50History?.length > 0
+          ? Math.max(...skData.top50History.map((h: any) => h.top50Count || 0))
+          : 0;
+      const czMax =
+        czData?.top50History?.length > 0
+          ? Math.max(...czData.top50History.map((h: any) => h.top50Count || 0))
+          : 0;
+
+      const maxAcrossBoth = Math.max(skMax, czMax);
+
+      if (skData) skData.maxSongsAcrossBothCountries = maxAcrossBoth;
+      if (czData) czData.maxSongsAcrossBothCountries = maxAcrossBoth;
     });
 
     // Sort and assign ranks per country
