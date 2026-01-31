@@ -290,8 +290,8 @@ export function ArtistSidePanel({
                   }}
                   label={{
                     value: "Time",
-                    position: "insideBottomRight",
-                    offset: -10,
+                    position: "bottom",
+                    offset: 5,
                     style: {
                       fontSize: 10,
                       fill: "hsl(var(--muted-foreground))",
@@ -373,8 +373,8 @@ export function ArtistSidePanel({
                   }}
                   label={{
                     value: "Time",
-                    position: "insideBottomRight",
-                    offset: -10,
+                    position: "bottom",
+                    offset: 5,
                     style: {
                       fontSize: 10,
                       fill: "hsl(var(--muted-foreground))",
