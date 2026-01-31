@@ -278,8 +278,8 @@ export function ArtistSidePanel({
               <div className="w-3 h-3 rounded bg-primary" />
               <span className="text-muted-foreground">Count over time</span>
             </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <ComposedChart data={mergedArtistData.top50History}>
+            <ResponsiveContainer width="100%" height={230}>
+              <ComposedChart data={mergedArtistData.top50History} margin={{ bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="date"
@@ -361,8 +361,8 @@ export function ArtistSidePanel({
               <div className="w-3 h-0.5 bg-orange-500" />
               <span className="text-muted-foreground">Monthly best rank</span>
             </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <ComposedChart data={transformedTop50History}>
+            <ResponsiveContainer width="100%" height={230}>
+              <ComposedChart data={transformedTop50History} margin={{ bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="date"
