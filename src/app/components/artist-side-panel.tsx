@@ -288,6 +288,15 @@ export function ArtistSidePanel({
                     fill: "hsl(var(--muted-foreground))",
                     fontSize: 10,
                   }}
+                  label={{
+                    value: "Time",
+                    position: "insideBottomRight",
+                    offset: -10,
+                    style: {
+                      fontSize: 10,
+                      fill: "hsl(var(--muted-foreground))",
+                    },
+                  }}
                   ticks={mergedArtistData.top50History
                     .filter((d: any) => d.isYearStart)
                     .map((d: any) => d.date)}
@@ -362,6 +371,15 @@ export function ArtistSidePanel({
                     fill: "hsl(var(--muted-foreground))",
                     fontSize: 10,
                   }}
+                  label={{
+                    value: "Time",
+                    position: "insideBottomRight",
+                    offset: -10,
+                    style: {
+                      fontSize: 10,
+                      fill: "hsl(var(--muted-foreground))",
+                    },
+                  }}
                   ticks={transformedTop50History
                     .filter((d: any) => d.isYearStart)
                     .map((d: any) => d.date)}
@@ -402,7 +420,10 @@ export function ArtistSidePanel({
                             {data.displayDate}
                           </p>
                           <p className="text-xs">
-                            Best Rank: {data.bestRankInMonth === 51 ? 'Not in Top 50' : `#${data.bestRankInMonth}`}
+                            Best Rank:{" "}
+                            {data.bestRankInMonth === 51
+                              ? "Not in Top 50"
+                              : `#${data.bestRankInMonth}`}
                           </p>
                         </div>
                       );
